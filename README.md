@@ -1,46 +1,49 @@
-# سیستم حضور و غیاب (Attendance System)
+# Attendance System
 
-## 🏗️ معماری پروژه
+## 🏗️ Project Architecture
 
-این پروژه یک سیستم حضور و غیاب مبتنی بر معماری میکروسرویس است که شامل دو سرویس مستقل می‌باشد:
+This project is an attendance system based on a microservice architecture, consisting of two independent services:
 
-### سرویس‌ها:
+### Services:
 
-1. **Auth Service** (پورت 8000)
-   - مدیریت کاربران و احراز هویت
-   - صدور توکن JWT
-   - ثبت نام و لاگین کاربران
+1.  **Auth Service** (port 8000)
+    -   User management and authentication
+    -   Issuing JWT tokens
+    -   User registration and login
+2.  **Attendance Service** (port 8001)
+    -   Logging employee check-in and check-out
+    -   Viewing attendance reports
 
-2. **Attendance Service** (پورت 8001)
-   - ثبت ورود و خروج کارمندان
-   - مشاهده گزارشات حضور و غیاب
+### Data Models:
 
-### مدل‌های داده:
+-   **User**: User information (username, password, employee_id, is_admin)
+-   **AttendanceRecord**: Attendance records (employee_id, action, timestamp)
 
-- **User**: اطلاعات کاربران (username, password, employee_id, is_admin)
-- **AttendanceRecord**: رکوردهای حضور و غیاب (employee_id, action, timestamp)
+### Security:
 
-### امنیت:
-- احراز هویت مبتنی بر JWT
-- کاربران عادی فقط به داده‌های خود دسترسی دارند
-- ادمین‌ها به تمام داده‌ها دسترسی دارند
+-   JWT-based authentication
+-   Regular users can only access their own data
+-   Admins can access all data
 
-## 🚀 راه‌اندازی
+## 🚀 Setup
 
-### پیش‌نیازها:
-- Python 3.9+
-- PostgreSQL
+### Prerequisites:
 
-### نصب و راه‌اندازی:
+-   Python 3.9+
+-   PostgreSQL
 
-1. کلون کردن پروژه:
-```bash
+### Installation and Setup:
+
+1.  Clone the project:
+
+``` bash
 git clone https://github.com/Saeid-Shakeri/Attendance_System.git
 cd Attendance-System
 ```
 
-2. نصب dependencies:
-```bash
+2.  Install dependencies:
+
+``` bash
 # for Auth Service
 cd auth_service
 pip install -r requirements.txt
@@ -50,14 +53,16 @@ cd ../attendance_service
 pip install -r requirements.txt
 ```
 
-3.  PostgreSQL ایجاد دیتابیس ها در:
-```sql
+3.  Create PostgreSQL databases:
+
+``` sql
 CREATE DATABASE auth_db;
 CREATE DATABASE attendance_db;
 ```
 
-4. ساخت فایل `.env`  در هر دو سرویس:
-```env
+4.  Create `.env` file in both services:
+
+``` env
 # auth_service/.env
 DATABASE_URL=postgresql://username:password@localhost:5432/auth_db
 JWT_SECRET_KEY=your-super-secret-key-12345-change-in-production
@@ -68,21 +73,23 @@ DATABASE_URL=postgresql://username:password@localhost:5432/attendance_db
 AUTH_SERVICE_URL=http://localhost:8000
 ```
 
-5. اجرای سرویس‌ها:
-```bash
-# ترمینال ۱ - Auth Service
+5.  Run services:
+
+``` bash
+# Terminal 1 - Auth Service
 cd auth_service/app
 uvicorn main:app --reload --port 8000 
 
-# ترمینال ۲ - Attendance Service
+# Terminal 2 - Attendance Service
 cd attendance_service/app
 uvicorn main:app --reload --port 8001
 ```
 
-## 📡 نمونه درخواست‌های REST با curl
+## 📡 REST Request Examples with curl
 
-### 1. ثبت کاربر جدید
-```bash
+### 1. Register a new user
+
+``` bash
 curl -X POST "http://localhost:8000/register"   
 -H "Content-Type: application/json"   
 -d '{
@@ -92,21 +99,24 @@ curl -X POST "http://localhost:8000/register"
   }'
 ```
 
-### 2. دریافت توکن
-```bash
+### 2. Get token
+
+``` bash
 curl -X POST "http://localhost:8000/token"   
 -H "Content-Type: application/x-www-form-urlencoded"
 -d "username=admin&password=adminpassword"
 ```
 
-### 3. مشاهده اطلاعات کاربر جاری
-```bash
+### 3. Get current user info
+
+``` bash
 curl -X GET "http://localhost:8000/users/me"
 -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
-### 4. ثبت ورود
-```bash
+### 4. Log check-in
+
+``` bash
 curl -X POST "http://localhost:8001/attendance"
 -H "Authorization: Bearer <YOUR_TOKEN>"   
 -H "Content-Type: application/json"   
@@ -116,8 +126,9 @@ curl -X POST "http://localhost:8001/attendance"
   }'
 ```
 
-### 5. ثبت خروج
-```bash
+### 5. Log check-out
+
+``` bash
 curl -X POST "http://localhost:8001/attendance"
 -H "Authorization: Bearer <YOUR_TOKEN>"
 -H "Content-Type: application/json"
@@ -127,36 +138,43 @@ curl -X POST "http://localhost:8001/attendance"
   }'
 ```
 
-### 6. مشاهده رکوردهای خود کاربر
-```bash
+### 6. View user's own records
+
+``` bash
 curl -X GET "http://localhost:8001/attendance/10"
 -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
-### 7. مشاهده تمام رکوردها (فقط ادمین)
-```bash
+### 7. View all records (admin only)
+
+``` bash
 curl -X GET "http://localhost:8001/attendance"
 -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
-## 🔐 نقش‌ها و دسترسی‌ها
+## 🔐 Roles and Permissions
 
-### کاربر عادی:
-- فقط می‌تواند برای خودش ثبت حضور/خروج انجام دهد
-- فقط می‌تواند رکوردهای خودش را مشاهده کند
+### Regular User:
 
-### کاربر ادمین:
-- می‌تواند برای هر کارمندی ثبت حضور/خروج انجام دهد
-- می‌تواند تمام رکوردهای سیستم را مشاهده کند
+-   Can only log check-in/out for themselves
+-   Can only view their own records
 
-## 📋 endpoints  
+### Admin User:
+
+-   Can log check-in/out for any employee
+-   Can view all system records
+
+## 📋 Endpoints
 
 ### Auth Service (8000)
-- `POST /token` - دریافت توکن JWT
-- `POST /register` - ثبت نام کاربر جدید
-- `GET /users/me` - اطلاعات کاربر جاری
+
+-   `POST /token` - Get JWT token
+-   `POST /register` - Register new user
+-   `GET /users/me` - Get current user info
 
 ### Attendance Service (8001)
-- `POST /attendance` - ثبت ریکورد حضور/خروج
-- `GET /attendance/{employee_id}` - مشاهده رکوردهای یک کارمند (توسط خودش و ادمین)
-- `GET /attendance` - مشاهده تمام رکوردها (ادمین)
+
+-   `POST /attendance` - Log check-in/out record
+-   `GET /attendance/{employee_id}` - View an employee's records (by
+    themselves or admin)
+-   `GET /attendance` - View all records (admin)
