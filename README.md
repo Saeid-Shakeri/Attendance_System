@@ -95,6 +95,7 @@ curl -X POST "http://localhost:8000/register"
 -d '{
     "username": "user1",
     "password": "password123",
+    "employee_id": 0,
     "is_admin": false
   }'
 ```
