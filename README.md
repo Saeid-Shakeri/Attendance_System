@@ -142,7 +142,7 @@ curl -X POST "http://localhost:8001/attendance"
 ### 6. View user's own records
 
 ``` bash
-curl -X GET "http://localhost:8001/attendance/10"
+curl -X GET "http://localhost:8001/attendance/{employee_id}"
 -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
